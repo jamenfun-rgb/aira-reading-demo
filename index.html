@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIRA Demo</title>
+  <style>
+    :root {
+      --bg: #f5efe4;
+      --panel: #fffaf2;
+      --line: #d8c9b4;
+      --text: #1f1d1a;
+      --muted: #665f53;
+      --accent: #1d5f66;
+      --accent-soft: #dceff1;
+      --warm: #9a6337;
+      --glow: #f2d8bc;
+      --shadow: 0 20px 45px rgba(35, 25, 14, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(154, 99, 55, 0.16), transparent 28%),
+        linear-gradient(180deg, #fbf7f0 0%, var(--bg) 100%);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .page {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 28px 18px 42px;
+    }
+
+    .hero {
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 0.8rem;
+      color: var(--warm);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+    }
+
+    .hero-copy {
+      max-width: 850px;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1.05rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 360px 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls,
+    .companion,
+    .viewer {
+      padding: 22px;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    select,
+    textarea,
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fffdf9;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 230px;
+      resize: vertical;
+    }
+
+    .button-row,
+    .question-row,
+    .mode-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 16px;
+      cursor: pointer;
+      background: var(--accent);
+      color: white;
+      transition: transform 140ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button.secondary {
+      background: var(--accent-soft);
+      color: #163f44;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: var(--accent-soft);
+      color: #163f44;
+      line-height: 1.5;
+    }
+
+    .account-panel {
+      display: grid;
+      gap: 14px;
+    }
+
+    .account-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .account-row strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.05rem;
+    }
+
+    .session-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: #fffdf9;
+      border: 1px solid var(--line);
+      line-height: 1.55;
+    }
+
+    .quick-actions {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .quick-actions button {
+      width: 100%;
+      text-align: left;
+      border-radius: 16px;
+    }
+
+    .companion-shell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .avatar-wrap {
+      width: 220px;
+      height: 300px;
+      margin: 8px auto 14px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 28px;
+      background:
+        radial-gradient(circle at top, rgba(242, 216, 188, 0.85), transparent 44%),
+        linear-gradient(180deg, #eef4f4 0%, #fdf8f0 100%);
+      overflow: hidden;
+    }
+
+    .avatar-wrap.listening {
+      outline: 4px solid rgba(29, 95, 102, 0.18);
+      box-shadow: 0 0 0 10px rgba(220, 239, 241, 0.7);
+    }
+
+    .halo {
+      position: absolute;
+      inset: auto auto 48px auto;
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow), transparent 70%);
+      opacity: 0.95;
+    }
+
+    .avatar {
+      position: relative;
+      width: 170px;
+      height: 240px;
+    }
+
+    .head {
+      position: absolute;
+      top: 24px;
+      left: 48px;
+      width: 74px;
+      height: 86px;
+      border-radius: 44px;
+      background: #d7a57f;
+      z-index: 3;
+      box-shadow: inset 0 -7px 0 rgba(0, 0, 0, 0.04);
+    }
+
+    .hair {
+      position: absolute;
+      top: 10px;
+      left: 38px;
+      width: 94px;
+      height: 98px;
+      border-radius: 48px 48px 36px 36px;
+      background: #4e382f;
+      z-index: 2;
+    }
+
+    .eye {
+      position: absolute;
+      top: 58px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3c2f29;
+      z-index: 4;
+    }
+
+    .eye.left { left: 72px; }
+    .eye.right { left: 92px; }
+
+    .smile {
+      position: absolute;
+      top: 82px;
+      left: 76px;
+      width: 22px;
+      height: 10px;
+      border-bottom: 3px solid #8a4d4b;
+      border-radius: 0 0 20px 20px;
+      z-index: 4;
+    }
+
+    .body {
+      position: absolute;
+      top: 96px;
+      left: 24px;
+      width: 122px;
+      height: 126px;
+      border-radius: 38px 38px 24px 24px;
+      background: linear-gradient(180deg, #2f7a82 0%, #1d5f66 100%);
+      z-index: 1;
+    }
+
+    .tablet {
+      position: absolute;
+      top: 138px;
+      left: 52px;
+      width: 68px;
+      height: 52px;
+      border-radius: 10px;
+      background: #eff5f5;
+      border: 3px solid #98b1b3;
+      z-index: 5;
+      transform: rotate(-6deg);
+    }
+
+    .tablet::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 12px;
+      width: 40px;
+      height: 3px;
+      background: #b9cfd1;
+      box-shadow: 0 10px 0 #b9cfd1, 0 20px 0 #b9cfd1;
+    }
+
+    .arms::before,
+    .arms::after {
+      content: "";
+      position: absolute;
+      top: 132px;
+      width: 24px;
+      height: 78px;
+      border-radius: 20px;
+      background: #d7a57f;
+      z-index: 4;
+    }
+
+    .arms::before {
+      left: 34px;
+      transform: rotate(24deg);
+    }
+
+    .arms::after {
+      right: 34px;
+      transform: rotate(-24deg);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .badge {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #f5eee1;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .badge.active {
+      background: var(--accent-soft);
+      color: #163f44;
+      border-color: #b8dde0;
+    }
+
+    .companion-note {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 18px;
+      background: #f5eee1;
+      text-align: left;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .relationship-note {
+      margin: 0 0 10px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .viewer-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .conversation {
+      padding-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 440px;
+    }
+
+    .bubble {
+      max-width: 88%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .aira {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-top-left-radius: 8px;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: white;
+      border-bottom-right-radius: 8px;
+    }
+
+    .system {
+      background: #f5eee1;
+      border-top-left-radius: 8px;
+    }
+
+    .question {
+      margin-top: 18px;
+    }
+
+    .hint {
+      margin-top: 16px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1120px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row,
+      .question-row,
+      .mode-row {
+        flex-direction: column;
+      }
+
+      .bubble {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">Signed-In Prototype</p>
+      <h1>Welcome back to AIRA</h1>
+      <p class="hero-copy">
+        This demo opens as if the reader has signed into their AI reading assistant account. Their chosen companion is already
+        waiting, remembers the current reading session, and continues the guided conversation with serious, patient support.
+      </p>
+    </section>
+
+    <section class="layout">
+      <aside class="card controls">
+        <p class="eyebrow">Reader Account</p>
+        <h2>John's AIRA Session</h2>
+
+        <div class="account-panel">
+          <div class="account-row">
+            <span>
+              <strong>AIRA companion</strong>
+              Selected persona: patient study guide
+            </span>
+            <span>Active</span>
+          </div>
+
+          <div class="account-row">
+            <span>
+              <strong>Current reading</strong>
+              Sample History Chapter
+            </span>
+            <span>Section 2 of 3</span>
+          </div>
+
+          <div class="session-card">
+            Last session: the reader asked why the Industrial Revolution changed daily life. AIRA is ready to continue with the human effects of factories, cities, and working conditions.
+          </div>
+
+          <label for="mode">Adjust support mode</label>
+          <select id="mode">
+            <option>Student Mode</option>
+            <option>Historical Mode</option>
+            <option>Parent Support Mode</option>
+            <option>Faith-Sensitive Mode</option>
+          </select>
+
+          <input id="title" type="hidden" value="Sample History Chapter">
+          <textarea id="source" hidden>The industrial revolution changed how people lived and worked. Instead of producing goods mainly by hand, societies increasingly relied on machines, factories, and transportation systems that could move products and people more efficiently.
+
+This transformation created economic growth, but it also brought difficult labor conditions, crowded cities, and major social change. Families, workers, and governments all had to adapt to a new way of life.
+
+For students, understanding this period means looking not only at inventions, but also at the human effects of those inventions.</textarea>
+
+          <div class="quick-actions">
+            <button id="startDemo">Continue Reading</button>
+            <button id="simpleExplain" class="secondary">Explain the last section simply</button>
+            <button id="sceneIdea" class="secondary">Show how this could become a scene</button>
+            <button id="confidenceCheck" class="secondary">Check reader confidence</button>
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button id="loadDemo" class="secondary">Reset Session</button>
+        </div>
+
+        <div class="status">
+          Demo goal:
+          <br>Show that AIRA is not just a text box. It is a serious AI reading companion that can stay with a learner over time.
+        </div>
+      </aside>
+
+      <section class="card companion">
+        <div class="companion-shell">
+          <p class="eyebrow">Chosen Companion</p>
+          <h2>AIRA</h2>
+          <p class="relationship-note">Already signed in. Ready to continue the reading session.</p>
+
+          <div class="avatar-wrap listening" id="avatarWrap">
+            <div class="halo"></div>
+            <div class="avatar">
+              <div class="hair"></div>
+              <div class="head"></div>
+              <div class="eye left"></div>
+              <div class="eye right"></div>
+              <div class="smile"></div>
+              <div class="body"></div>
+              <div class="arms"></div>
+              <div class="tablet"></div>
+            </div>
+          </div>
+
+          <h3 id="companionState">Waiting where you left off</h3>
+
+          <div class="badge-row">
+            <span id="voiceBadge" class="badge active">Voice Ready</span>
+            <span id="captionBadge" class="badge active">Captions On</span>
+            <span id="signBadge" class="badge">Sign Support</span>
+          </div>
+
+          <div class="mode-row">
+            <button id="voiceMode" class="secondary">Voice View</button>
+            <button id="captionMode" class="secondary">Caption View</button>
+            <button id="signMode" class="secondary">Sign View</button>
+          </div>
+
+          <div class="companion-note" id="accessibilityNote">
+            Accessibility is part of the companion experience from the start: voice-first interaction, caption-supported review, and a future path toward sign-language support.
+          </div>
+        </div>
+      </section>
+
+      <section class="card viewer">
+        <div class="viewer-header">
+          <span id="activeTitle">No reading started</span>
+          <span id="activeMode">Choose a mode</span>
+        </div>
+
+        <div id="conversation" class="conversation"></div>
+
+        <div class="question">
+          <label for="question">Ask AIRA a question</label>
+          <div class="question-row">
+            <input id="question" type="text" placeholder="What does this mean in simple terms?">
+            <button id="ask">Ask</button>
+            <button id="next" class="secondary">Next Section</button>
+          </div>
+        </div>
+
+        <p class="hint">
+          Tip: try asking “What does this mean in simple terms?” or “Can you show this as a scene?”
+        </p>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const sourceEl = document.getElementById("source");
+    const titleEl = document.getElementById("title");
+    const modeEl = document.getElementById("mode");
+    const conversationEl = document.getElementById("conversation");
+    const activeTitleEl = document.getElementById("activeTitle");
+    const activeModeEl = document.getElementById("activeMode");
+    const questionEl = document.getElementById("question");
+    const companionStateEl = document.getElementById("companionState");
+    const accessibilityNoteEl = document.getElementById("accessibilityNote");
+    const voiceBadge = document.getElementById("voiceBadge");
+    const captionBadge = document.getElementById("captionBadge");
+    const signBadge = document.getElementById("signBadge");
+    const avatarWrap = document.getElementById("avatarWrap");
+
+    let sections = [];
+    let currentIndex = 0;
+
+    document.getElementById("loadDemo").addEventListener("click", loadDemo);
+    document.getElementById("startDemo").addEventListener("click", startDemo);
+    document.getElementById("simpleExplain").addEventListener("click", () => demoAsk("What does this mean in simple terms?"));
+    document.getElementById("sceneIdea").addEventListener("click", () => demoAsk("Can you show this as a scene?"));
+    document.getElementById("confidenceCheck").addEventListener("click", confidenceCheck);
+    document.getElementById("next").addEventListener("click", nextSection);
+    document.getElementById("ask").addEventListener("click", askQuestion);
+    document.getElementById("voiceMode").addEventListener("click", () => setAccessibilityMode("voice"));
+    document.getElementById("captionMode").addEventListener("click", () => setAccessibilityMode("caption"));
+    document.getElementById("signMode").addEventListener("click", () => setAccessibilityMode("sign"));
+
+    loadDemo();
+    loadIntro();
+
+    function loadIntro() {
+      sections = sourceEl.value.trim().split(/\n\s*\n/).filter(Boolean);
+      currentIndex = 1;
+      activeTitleEl.textContent = titleEl.value.trim() || "Sample History Chapter";
+      activeModeEl.textContent = modeEl.value;
+      companionStateEl.textContent = "Waiting where you left off";
+
+      render([
+        {
+          role: "system",
+          text: "Signed in as John. AIRA has restored the previous reading session."
+        },
+        {
+          role: "aira",
+          text: `Welcome back, John. We were reading "${activeTitleEl.textContent}." Last time, you asked why the Industrial Revolution mattered beyond inventions.
+
+I saved your place. We are on section 2 of 3, where the reading shifts from machines to the human effects: labor conditions, crowded cities, and social change.
+
+Would you like me to continue, explain it more simply, or turn the section into a visual scene?`
+        }
+      ]);
+    }
+
+    function loadDemo() {
+      titleEl.value = "Sample History Chapter";
+      modeEl.value = "Student Mode";
+      sourceEl.value = `The industrial revolution changed how people lived and worked. Instead of producing goods mainly by hand, societies increasingly relied on machines, factories, and transportation systems that could move products and people more efficiently.
+
+This transformation created economic growth, but it also brought difficult labor conditions, crowded cities, and major social change. Families, workers, and governments all had to adapt to a new way of life.
+
+For students, understanding this period means looking not only at inventions, but also at the human effects of those inventions.`;
+      companionStateEl.textContent = "Waiting where you left off";
+    }
+
+    function startDemo() {
+      const text = sourceEl.value.trim();
+      if (!text) return;
+
+      sections = text.split(/\n\s*\n/).filter(Boolean);
+      currentIndex = Math.min(1, sections.length - 1);
+
+      activeTitleEl.textContent = titleEl.value.trim() || "Untitled Reading";
+      activeModeEl.textContent = modeEl.value;
+      companionStateEl.textContent = "Continuing saved session";
+
+      render([
+        {
+          role: "system",
+          text: `AIRA resumed the saved session for "${activeTitleEl.textContent}".`
+        },
+        {
+          role: "aira",
+          text: sectionMessage(sections[currentIndex], currentIndex)
+        }
+      ]);
+    }
+
+    function nextSection() {
+      if (!sections.length) return;
+      currentIndex = Math.min(currentIndex + 1, sections.length - 1);
+      companionStateEl.textContent = `Guiding section ${currentIndex + 1}`;
+      append("aira", sectionMessage(sections[currentIndex], currentIndex));
+    }
+
+    function askQuestion() {
+      const question = questionEl.value.trim();
+      if (!question) return;
+
+      append("user", question);
+      questionEl.value = "";
+
+      if (!sections.length) {
+        append("aira", "Start the reading first so I can guide you through the text.");
+        return;
+      }
+
+      companionStateEl.textContent = "Responding to the learner";
+      avatarWrap.classList.add("listening");
+      append("aira", answerFor(question, sections[currentIndex], modeEl.value));
+    }
+
+    function demoAsk(question) {
+      questionEl.value = question;
+      askQuestion();
+    }
+
+    function confidenceCheck() {
+      if (!sections.length) startDemo();
+      append("user", "Can you check whether I understand this?");
+      companionStateEl.textContent = "Checking reader confidence";
+      append("aira", `Yes. Here is a quick check:
+
+1. What changed when factories and machines became more common?
+2. Who was affected by crowded cities and labor conditions?
+3. Why should we study the human effects, not only the inventions?
+
+If a learner misses one, I would slow down, explain the section again, and keep the support encouraging.`);
+    }
+
+    function setAccessibilityMode(mode) {
+      voiceBadge.classList.remove("active");
+      captionBadge.classList.remove("active");
+      signBadge.classList.remove("active");
+
+      if (mode === "voice") {
+        voiceBadge.classList.add("active");
+        companionStateEl.textContent = "Voice-first accessibility view";
+        accessibilityNoteEl.textContent =
+          "Voice-first mode demonstrates how blind users or users with limited mobility could interact with AIRA through spoken prompts and audio guidance.";
+      } else if (mode === "caption") {
+        captionBadge.classList.add("active");
+        companionStateEl.textContent = "Caption-supported accessibility view";
+        accessibilityNoteEl.textContent =
+          "Caption mode demonstrates how on-screen text support and saved transcripts can help deaf users review and follow the reading session.";
+      } else {
+        signBadge.classList.add("active");
+        companionStateEl.textContent = "Sign-support accessibility view";
+        accessibilityNoteEl.textContent =
+          "Sign-support mode points toward a future AIRA version where a signing assistant or signing avatar helps communicate the session visually for deaf users.";
+      }
+    }
+
+    function sectionMessage(section, index) {
+      return `Section ${index + 1} of ${sections.length}
+
+${summarize(section)}
+
+Key idea:
+"${keyLine(section)}"
+
+You can ask me to explain this in simpler terms, give more context, or show how this could become a visual scene.`;
+    }
+
+    function summarize(section) {
+      const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
+      return sentences.slice(0, 2).join(" ").trim();
+    }
+
+    function keyLine(section) {
+      const sentences = section.match(/[^.!?]+[.!?]+/g) || [section];
+      return sentences.sort((a, b) => b.length - a.length)[0].trim();
+    }
+
+    function answerFor(question, section, mode) {
+      const lower = question.toLowerCase();
+      const intro =
+        mode === "Historical Mode"
+          ? "In historical mode, I focus on context and cause-and-effect."
+          : mode === "Parent Support Mode"
+          ? "In parent support mode, I explain this in a way that could help continue the lesson at home."
+          : mode === "Faith-Sensitive Mode"
+          ? "In faith-sensitive mode, I stay careful about interpretation and remain grounded in the selected reading."
+          : "In student mode, I explain this clearly and simply.";
+
+      if (lower.includes("simple") || lower.includes("mean")) {
+        return `${intro}
+
+Simple explanation:
+This section says that major inventions changed work and daily life. The benefits were real, but the changes also created new hardships for ordinary people.`;
+      }
+
+      if (lower.includes("why")) {
+        return `${intro}
+
+Why it matters:
+The reading is asking the learner to understand both the inventions and the human consequences. That deeper understanding is what turns reading into comprehension.`;
+      }
+
+      if (lower.includes("scene") || lower.includes("show") || lower.includes("visual")) {
+        return `${intro}
+
+Visual scene idea:
+A future AIRA mode could show factory machinery in motion, crowded city streets, and families adjusting to industrial life so the learner can see what the passage is describing.`;
+      }
+
+      return `${intro}
+
+Grounded answer:
+The main point is that social change is not only about technology. It also affects people, families, work, and everyday life.`;
+    }
+
+    function render(messages) {
+      conversationEl.innerHTML = "";
+      messages.forEach((message) => append(message.role, message.text));
+    }
+
+    function append(role, text) {
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${role}`;
+      bubble.textContent = text;
+      conversationEl.appendChild(bubble);
+      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  </script>
+</body>
+</html>
